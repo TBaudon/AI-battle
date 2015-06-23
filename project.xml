@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	
+	<meta title="HxIaChallenge" package="com.sample.hxiachallenge" version="1.0.0" company="Company Name" />
+	<app main="client.Main" path="Export" file="HxIaChallenge" />
+	
+	<source path="Source" />
+	
+	<haxelib name="openfl" />
+	
+	<assets path="Assets" rename="assets" exclude="lime.svg" />
+	<icon path="Assets/lime.svg" />
+	
+</project>
