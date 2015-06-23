@@ -7,6 +7,7 @@ import openfl.display.Sprite;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.events.ProgressEvent;
+import openfl.events.MouseEvent;
 import openfl.Lib;
 import openfl.net.Socket;
 import openfl.utils.Endian;
@@ -25,7 +26,7 @@ class Main extends Sprite{
 	public function new () {
 		super ();
 		
-		mServer = new Socket("localhost", 1337);
+		mServer = new Socket("localhost", 2084);
 		mServer.endian = Endian.LITTLE_ENDIAN;
 		mServer.addEventListener(Event.CONNECT, onConnected);
 		mServer.addEventListener(IOErrorEvent.IO_ERROR, onError);
@@ -35,7 +36,7 @@ class Main extends Sprite{
 		
 		mCells = new Array<Cell>();
 		
-		mServer.connect("localhost", 1337);
+		mServer.connect("localhost", 2084);
 		
 		addEventListener(Event.ENTER_FRAME, onEnterFrame);
 	}
@@ -56,7 +57,6 @@ class Main extends Sprite{
 		};
 		
 		var string = Json.stringify(message);
-		mServer.writeInt(string.length);
 		mServer.writeUTF(string);
 		mServer.flush();
 	}

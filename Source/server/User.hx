@@ -36,7 +36,7 @@ class User
 	
 	static var adjectives : Array<String> = ["Mighty" , "Powerful", "Awesome", "Yellow", "Blue", "Lazy", "Angry", "Shiny", "Super", "Weak", "Smart", "Sly", "Crying", "Radial"];
 	static var name : Array<String> = ["Chicken", "Pig", "Dog", "Cat", "Banana", "Racoon", "Baby", "Shoe", "Human", "Jelly", "Guitar", "Screen", "Blob", "Fart", "Nerf", "Gun", "Mouse", "Horse"];
-	static var cplmt : Array<String> = ["on steroïd" , "with ADHD", "with no legs", "in a box", "under water", "doing back flips", "like you", "smirking", "flying", "living", "on coke", "is totaly stoned"];
+	static var cplmt : Array<String> = ["on steroïd" , "with ADHD", "with no legs", "in a box", "under water", "doing back flips", "on a plane", "in Uranus", "eating burger", "living the dream", "on coke", "is totaly stoned"];
 
 	public function new(socket : Socket, main : Main) {
 		mServer = main;
@@ -46,7 +46,6 @@ class User
 		mCurrentMessageLength = 0;
 		mCells = new Array<Cell>();
 		mName = adjectives[Std.random(adjectives.length)] + " " + name[Std.random(name.length)] + " " + cplmt[Std.random(cplmt.length)];
-		mListenThread = Thread.create(listenThread);
 	}
 	
 	public function sendMessage(name : String, data : Dynamic) {
@@ -64,6 +63,10 @@ class User
 		}catch (e : Dynamic) {
 			mConnected = false;
 		}
+	}
+	
+	public function startListenThread() {
+		mListenThread = Thread.create(listenThread);
 	}
 	
 	public function addCell() {
@@ -97,7 +100,19 @@ class User
 	}
 	
 	function listenThread() {
-		
+		while(true){
+			try {
+				handleMessage();
+			}catch (e : Dynamic) {
+				mServer.planRemove(this);
+				break;
+			}
+		}
+	}
+	
+	function handleMessage() {
+		var len = mSocket.input.readInt16();
+		var message = mSocket.input.readString(len);
 	}
 	
 }

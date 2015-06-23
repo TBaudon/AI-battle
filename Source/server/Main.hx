@@ -48,8 +48,8 @@ class Main
 		mPingCounter = 0;
 		
 		mSocket = new Socket();
-		mSocket.bind(mHost, 1337);
-		mSocket.listen(3);
+		mSocket.bind(mHost, 2084);
+		mSocket.listen(16);
 		
 		mAccetpThread = Thread.create(clientConnectionThread);
 		run();
@@ -61,8 +61,9 @@ class Main
 			var c = mSocket.accept();
 			var user = new User(c, this);
 			mUsers.push(user);
-			Lib.println(user.getName() + " connected.");
+			Lib.println(user.getName() + "is connected.");
 			user.login();
+			user.startListenThread();
 		}
 	}
 	
