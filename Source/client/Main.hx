@@ -25,6 +25,8 @@ class Main extends Sprite{
 	var mPlayers : Array<Player>;
 	var mMe : Player;
 	
+	var mMessageBuffer : String;
+	
 	var mBytebuffer : ByteArray;
 	var mTempByteBuff : ByteArray;
 	
@@ -41,6 +43,7 @@ class Main extends Sprite{
 		mServer.addEventListener(ProgressEvent.SOCKET_DATA, onData);
 		
 		mCurrentMessageLength = 0;
+		mMessageBuffer = "";
 		
 		mCells = new Array<Cell>();
 		mPlayers = new Array<Player>();
@@ -71,18 +74,18 @@ class Main extends Sprite{
 	}
 	
 	function onData(e:ProgressEvent):Void {
-		while (mServer.bytesAvailable >= 2 ) {
-			if(mCurrentMessageLength == 0)
-				mCurrentMessageLength = mServer.readUnsignedShort();
-			if (mCurrentMessageLength > mServer.bytesAvailable)
-				return;
-			else
-				readMessage();
+		while (mServer.bytesAvailable > 0 ) {
+			mMessageBuffer += mServer.readUTFBytes(mServer.bytesAvailable);
+			var messages = mMessageBuffer.split('\n');
+			mMessageBuffer = messages[messages.length - 1];
+			
+			for (message in messages)
+				if(message != null && message != "")
+					readMessage(message);
 		}
 	}
 	
-	function readMessage() {
-		var message = mServer.readUTFBytes(mCurrentMessageLength);
+	function readMessage(message : String) {
 		try{
 			onMessage(Json.parse(message));
 		}catch (e : Dynamic) {

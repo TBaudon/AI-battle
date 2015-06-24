@@ -58,8 +58,8 @@ class User
 		var string = Json.stringify(message);
 		try {
 			mSocket.output.prepare(1 + string.length);
-			mSocket.output.writeUInt16(string.length);
-			mSocket.output.writeString(string);
+			//mSocket.output.writeUInt16(string.length);
+			mSocket.output.writeString(string+'\n');
 			mSocket.output.flush();
 		}catch (e : Dynamic) {
 			mServer.planRemove(this);
@@ -157,7 +157,7 @@ class User
 	
 	function onPong() {
 		var time = Date.now().getTime();
-		mLatency = cast (time - mLastPingTime) / 2;
+		mLatency = cast ((time - mLastPingTime) / 2);
 		sendMessage(Messages.LATENCY, mLatency);
 	}
 	

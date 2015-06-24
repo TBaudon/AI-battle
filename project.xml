@@ -3,7 +3,7 @@
 	
 	<meta title="HxIaChallenge" package="com.sample.hxiachallenge" version="1.0.0" company="Company Name" />
 	<app main="client.Main" path="Export" file="HxIaChallenge" />
-	<window fps="60" background="0xcccccc" />
+	<window fps="60" background="0xcccccc" width="800" height="600" />
 	<source path="Source" />
 	
 	<haxelib name="openfl" />

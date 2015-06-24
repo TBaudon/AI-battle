@@ -70,7 +70,7 @@ class Main
 	public function run() {
 		while (true) {
 			
-			Sys.sleep(0.05);
+			Sys.sleep(0.25);
 			
 			mPingCounter++;
 			var sendPing = false;
