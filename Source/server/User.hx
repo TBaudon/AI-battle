@@ -67,7 +67,7 @@ class User
 	}
 	
 	public function sendPing() {
-		mLastPingTime = Date.now().getTime();
+		mLastPingTime = Sys.time() * 1000;
 		sendMessage(Messages.PING, "p" );
 	}
 	
@@ -75,24 +75,9 @@ class User
 		mListenThread = Thread.create(listenThread);
 	}
 	
-	public function update() {
+	public function update(delta : Float) {
 		for (cell in mCells){
-			cell.x += cell.speedX;
-			if (cell.x > 800){
-				cell.x = 800;
-				cell.speedX *= -1;
-			}if (cell.x < 0){
-				cell.x = 0;
-				cell.speedX *= -1;
-			}
-			cell.y += cell.speedY;
-			if (cell.y > 600){
-				cell.y = 600;
-				cell.speedY *= -1;
-			}if (cell.y < 0){
-				cell.y = 0;
-				cell.speedY *= -1;
-			}
+			cell.update(delta);
 			mServer.sendToAll(Messages.CELL, cell);
 		}
 	}
@@ -101,10 +86,10 @@ class User
 		var cell = new Cell();
 		mCells.push(cell);
 		cell.id = mServer.getCellId();
-		cell.x = Std.random(300);
-		cell.y = Std.random(300);
-		cell.speedX = Std.random(40)-20;
-		cell.speedY = Std.random(40)-20;
+		cell.x = Std.random(800);
+		cell.y = Std.random(600);
+		cell.speedX = Std.random(200)-100;
+		cell.speedY = Std.random(200)-100;
 		cell.color = Std.random(0xcccccc+1);
 		cell.size = 50;
 		cell.owner = mName;
@@ -156,7 +141,7 @@ class User
 	}
 	
 	function onPong() {
-		var time = Date.now().getTime();
+		var time = Sys.time() * 1000;
 		mLatency = cast ((time - mLastPingTime) / 2);
 		sendMessage(Messages.LATENCY, mLatency);
 	}

@@ -32,4 +32,27 @@ class Cell
 		color = 0x000000;
 	}
 	
+	public function update(delta : Float) {
+		if (x < 0){
+			x = 0;
+			speedX *= -1;
+		}
+		if (x > 800) {
+			x = 800;
+			speedX *= -1;
+		}
+		
+		if (y < 0){
+			y = 0;
+			speedY *= -1;
+		}
+		if (y > 600) {
+			y = 600;
+			speedY *= -1;
+		}
+		
+		x += speedX * delta;
+		y += speedY * delta;
+	}
+	
 }

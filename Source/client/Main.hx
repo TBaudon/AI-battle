@@ -10,6 +10,9 @@ import openfl.events.ProgressEvent;
 import openfl.events.MouseEvent;
 import openfl.Lib;
 import openfl.net.Socket;
+import openfl.text.TextField;
+import openfl.text.TextFieldAutoSize;
+import openfl.text.TextFormat;
 import openfl.utils.ByteArray;
 import openfl.utils.Endian;
 
@@ -22,6 +25,8 @@ class Main extends Sprite{
 	var mCurrentMessageLength : UInt;
 	
 	var mCells : Array<Cell>;
+	var mCellViewMap : Map<Cell, CellView>;
+	
 	var mPlayers : Array<Player>;
 	var mMe : Player;
 	
@@ -30,13 +35,15 @@ class Main extends Sprite{
 	var mBytebuffer : ByteArray;
 	var mTempByteBuff : ByteArray;
 	
+	var mPingTxt : TextField;
+	
 	public function new () {
 		super ();
 		
 		mBytebuffer = new ByteArray();
 		mTempByteBuff = new ByteArray();
 		
-		mServer = new Socket("localhost", 2084);
+		mServer = new Socket("radstar.fr", 2084);
 		mServer.endian = Endian.LITTLE_ENDIAN;
 		mServer.addEventListener(Event.CONNECT, onConnected);
 		mServer.addEventListener(IOErrorEvent.IO_ERROR, onError);
@@ -46,20 +53,22 @@ class Main extends Sprite{
 		mMessageBuffer = "";
 		
 		mCells = new Array<Cell>();
+		mCellViewMap = new Map<Cell, CellView>();
 		mPlayers = new Array<Player>();
 		
-		mServer.connect("localhost", 2084);
+		mPingTxt = new TextField();
+		mPingTxt.selectable = false;
+		mPingTxt.defaultTextFormat = new TextFormat("arial", 18, 0x339933);
+		mPingTxt.autoSize = TextFieldAutoSize.LEFT;
+		addChild(mPingTxt);
+		
+		mServer.connect("radstar.fr", 2084);
 		
 		addEventListener(Event.ENTER_FRAME, onEnterFrame);
 	}
 	
-	function onEnterFrame(e:Event):Void 
-	{
-		graphics.clear();
-		for (cell in mCells) {
-			graphics.beginFill(cell.color);
-			graphics.drawCircle(cell.x, cell.y, cell.size);
-		}
+	function onEnterFrame(e:Event):Void {
+		
 	}
 	
 	function sendMessage(name : String, data : Dynamic) {
@@ -106,14 +115,23 @@ class Main extends Sprite{
 				onPing(message.content);
 			case Messages.USERLEFT :
 				onUserLeave(message.content);
+			case Messages.LATENCY :
+				onLatency(message.content);
 		}
+	}
+	
+	function onLatency(latency : Float) {
+		mPingTxt.text = "Ping : " + Math.ceil(latency);
 	}
 	
 	function onUserLeave(name:String) {
 		var player = getPlayer(name);
 		if (player != null) {
-			for (cell in player.getCells())
+			for (cell in player.getCells()){
 				mCells.remove(cell);
+				removeChild(mCellViewMap[cell]);
+				mCellViewMap.remove(cell);
+			}
 			mPlayers.remove(player);
 			player.destroy();
 		}
@@ -185,6 +203,9 @@ class Main extends Sprite{
 		var player = getPlayer(owner);
 		if (player != null)
 			player.addCell(cell);
+		var cellView = new CellView(cell);
+		mCellViewMap[cell] = cellView;
+		addChild(cellView);
 	}
 	
 	function getCell(id : UInt) : Cell{

@@ -32,13 +32,17 @@ class Main
 	var mLastID : UInt;
 	
 	var mPingCounter : UInt;
+	var mLastTime : Float;
+	
+	var mRunSleepTime : Float;
 
 	static function main() {
 		new Main();
 	}
 	
 	public function new() {
-		mHost = new Host("localhost");
+		//mHost = new Host("10.33.1.57");
+		mHost = new Host(Host.localhost());
 		Lib.println("Server launched on " + mHost);
 		
 		mUsers = new ThreadSafeList<User>();
@@ -46,6 +50,8 @@ class Main
 		
 		mLastID = 0;
 		mPingCounter = 0;
+		mLastTime = Sys.time();
+		mRunSleepTime = 0.25;
 		
 		mSocket = new Socket();
 		mSocket.bind(mHost, 2084);
@@ -70,7 +76,11 @@ class Main
 	public function run() {
 		while (true) {
 			
-			Sys.sleep(0.25);
+			Sys.sleep(mRunSleepTime);
+			
+			var time : Float = Sys.time();
+			var delta : Float = time - mLastTime;
+			mLastTime = time;
 			
 			mPingCounter++;
 			var sendPing = false;
@@ -81,9 +91,8 @@ class Main
 			
 			for (user in mUsers) {
 				if (sendPing) user.sendPing();
-				user.update();
+				user.update(delta);
 			}
-			
 			
 			while (mUsersToRemove.length > 0) {
 				var removedUser : User = mUsersToRemove.pop();
