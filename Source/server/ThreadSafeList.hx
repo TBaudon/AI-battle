@@ -29,6 +29,14 @@ class ThreadSafeList<T>
 		mMutex.release();
 	}
 	
+	public function indexOf(elem : T) : Int {
+		var rep = 0;
+		mMutex.acquire();
+		rep = mList.indexOf(elem);
+		mMutex.release();
+		return rep;
+	}
+	
 	public function get(i : UInt) : T {
 		mMutex.acquire();
 		var rep = mList[i];

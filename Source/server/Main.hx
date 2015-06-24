@@ -61,7 +61,7 @@ class Main
 			var c = mSocket.accept();
 			var user = new User(c, this);
 			mUsers.push(user);
-			Lib.println(user.getName() + "is connected.");
+			Lib.println(user.getName() + " is connected.");
 			user.login();
 			user.startListenThread();
 		}
@@ -70,30 +70,33 @@ class Main
 	public function run() {
 		while (true) {
 			
-			Sys.sleep(0.1);
+			Sys.sleep(0.05);
 			
 			mPingCounter++;
-			
+			var sendPing = false;
 			if (mPingCounter >= 25) {
+				sendPing = true;
 				mPingCounter = 0;
-				sendToAll(Messages.PING, { emitTime : Date.now().getTime() } );
-				
-				for (user in mUsers)
-					if (!user.isConnected())
-						planRemove(user);
 			}
+			
+			for (user in mUsers) {
+				if (sendPing) user.sendPing();
+				user.update();
+			}
+			
 			
 			while (mUsersToRemove.length > 0) {
 				var removedUser : User = mUsersToRemove.pop();
 				mUsers.remove(removedUser);
-				sendToAll(Messages.USERLEFT, { name : removedUser.getName() } );
+				sendToAll(Messages.USERLEFT, removedUser.getName());
 				Lib.println(removedUser.getName() + " left.");
 			}
 		}
 	}
 	
 	public function planRemove(user : User) {
-		mUsersToRemove.push(user);
+		if(mUsersToRemove.indexOf(user) == -1)
+			mUsersToRemove.push(user);
 	}
 	
 	public function getUsers() : ThreadSafeList<User> {
