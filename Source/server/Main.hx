@@ -47,6 +47,9 @@ class Main
 	
 	public function new() {
 		mHost = new Host(Host.localhost());
+		#if debug
+		Lib.println("Debug serveur");
+		#end
 		Lib.println("Server launched on " + mHost);
 		
 		mUsers = new ThreadSafeList<User>();
@@ -60,7 +63,7 @@ class Main
 		mRunSleepTime = 0.25;
 		
 		mSocket = new Socket();
-		mSocket.bind(new Host(Config.HOST), Config.PORT);
+		mSocket.bind(mHost, Config.PORT);
 		mSocket.listen(16);
 		
 		mAccetpThread = Thread.create(clientConnectionThread);
@@ -69,15 +72,14 @@ class Main
 	
 	function policyServer() {
 		var socket = new Socket();
-		socket.bind(new Host(Config.HOST), Config.PORT + 1);
+		socket.bind(mHost, Config.PORT + 1);
 		socket.listen(16);
 		
 		Sys.println("Policy server created.");
 		
 		while (true) {
 			var c : Socket = socket.accept();
-			var policy = File.getContent("policy.xml") + "\r"+String.fromCharCode(0);
-			Lib.println(policy);
+			var policy = File.getContent("crossdomain.xml") + "\r"+String.fromCharCode(0);
 			c.write(policy);
 		}
 	}
@@ -111,7 +113,7 @@ class Main
 			
 			for (user in mUsers) {
 				if (sendPing) user.sendPing();
-				user.update(delta);
+				user.update(delta+user.getLatency()/1000);
 			}
 			
 			while (mUsersToRemove.length > 0) {

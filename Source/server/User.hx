@@ -43,6 +43,7 @@ class User
 	public function new(socket : Socket, main : Main) {
 		mServer = main;
 		mSocket = socket;
+		mLatency = 0;
 		mCurrentMessage = "";
 		mCurrentMessageLength = 0;
 		mCells = new Array<Cell>();
@@ -111,7 +112,7 @@ class User
 		return mName;
 	}
 	
-	public function getLatnecy() : UInt {
+	public function getLatency() : UInt {
 		return mLatency;
 	}
 	
