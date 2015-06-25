@@ -77,10 +77,13 @@ class User
 	}
 	
 	public function update(delta : Float) {
-		for (cell in mCells){
+		for (cell in mCells)
 			cell.update(delta);
+	}
+	
+	public function sync() {
+		for (cell in mCells)
 			mServer.sendToAll(Messages.CELL, cell);
-		}
 	}
 	
 	public function addCell() {

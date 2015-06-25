@@ -34,18 +34,26 @@ class Main
 	
 	var mLastID : UInt;
 	
-	var mPingCounter : UInt;
+	var mPingCounter : Float;
+	var mPingPeriod : Float;
 	var mLastTime : Float;
 	
 	var mRunSleepTime : Float;
+	var mSyncPeriod : Float;
+	var mSyncCounter : Float;
 	
 	var mPolicyServer : Thread;
+	
+	var mConfig : Dynamic;
 
 	static function main() {
 		new Main();
 	}
 	
 	public function new() {
+		
+		mConfig = Json.parse(File.getContent("config.json"));
+		
 		mHost = new Host(Host.localhost());
 		#if debug
 		Lib.println("Debug serveur");
@@ -60,11 +68,14 @@ class Main
 		mLastID = 0;
 		mPingCounter = 0;
 		mLastTime = Sys.time();
-		mRunSleepTime = 0.25;
+		mRunSleepTime = 1 / mConfig.runFrequency;
+		mPingPeriod = 1 / mConfig.pingFrequency;
+		mSyncCounter = 0;
+		mSyncPeriod = 1 / mConfig.syncFrequency;
 		
 		mSocket = new Socket();
 		mSocket.bind(mHost, Config.PORT);
-		mSocket.listen(16);
+		mSocket.listen(mConfig.maxPendingConnections);
 		
 		mAccetpThread = Thread.create(clientConnectionThread);
 		run();
@@ -73,7 +84,7 @@ class Main
 	function policyServer() {
 		var socket = new Socket();
 		socket.bind(mHost, Config.PORT + 1);
-		socket.listen(16);
+		socket.listen(mConfig.maxPendingConnections);
 		
 		Sys.println("Policy server created.");
 		
@@ -104,16 +115,21 @@ class Main
 			var delta : Float = time - mLastTime;
 			mLastTime = time;
 			
-			mPingCounter++;
+			mPingCounter += delta;
 			var sendPing = false;
-			if (mPingCounter >= 5) {
+			if (mPingCounter >= mPingPeriod) {
 				sendPing = true;
 				mPingCounter = 0;
 			}
 			
+			mSyncCounter += delta;
 			for (user in mUsers) {
 				if (sendPing) user.sendPing();
 				user.update(delta);
+				if (mSyncCounter >= mSyncPeriod) {
+					mSyncCounter = 0;
+					user.sync();
+				}
 			}
 			
 			while (mUsersToRemove.length > 0) {

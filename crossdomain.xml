@@ -1,6 +1,0 @@
-<?xml version="1.0"?>	
-<!DOCTYPE cross-domain-policy SYSTEM "http://www.adobe.com/xml/dtds/cross-domain-policy.dtd">
-<cross-domain-policy>
-    <allow-access-from domain="localhost" to-ports="11000"/>
-    <allow-access-from domain="radstar.fr" to-ports="11000"/>
-</cross-domain-policy>

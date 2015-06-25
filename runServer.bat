@@ -1,4 +1,5 @@
 haxe -cp Source -main server.Main -neko server/Server.n 
 PAUSE
-neko server\Server.n
+cd server
+neko Server.n
 PAUSE
