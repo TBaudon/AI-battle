@@ -35,9 +35,6 @@ class Main
 	var mLastID : UInt;
 	
 	var mPingCounter : UInt;
-	var mPingFrequency : Float;
-	var mUpdateFrequency : Float;
-	var mServerTickPerSecond : Float;
 	var mLastTime : Float;
 	
 	var mRunSleepTime : Float;
@@ -64,8 +61,6 @@ class Main
 		mPingCounter = 0;
 		mLastTime = Sys.time();
 		mRunSleepTime = 0.25;
-		mPingFrequency = 0.1;
-		mUpdateFrequency = 10;
 		
 		mSocket = new Socket();
 		mSocket.bind(mHost, Config.PORT);
@@ -111,14 +106,14 @@ class Main
 			
 			mPingCounter++;
 			var sendPing = false;
-			if (mPingCounter >= 25) {
+			if (mPingCounter >= 5) {
 				sendPing = true;
 				mPingCounter = 0;
 			}
 			
 			for (user in mUsers) {
 				if (sendPing) user.sendPing();
-				user.update(delta+user.getLatency()/1000);
+				user.update(delta);
 			}
 			
 			while (mUsersToRemove.length > 0) {
