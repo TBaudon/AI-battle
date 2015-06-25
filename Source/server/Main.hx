@@ -35,6 +35,9 @@ class Main
 	var mLastID : UInt;
 	
 	var mPingCounter : UInt;
+	var mPingFrequency : Float;
+	var mUpdateFrequency : Float;
+	var mServerTickPerSecond : Float;
 	var mLastTime : Float;
 	
 	var mRunSleepTime : Float;
@@ -61,6 +64,8 @@ class Main
 		mPingCounter = 0;
 		mLastTime = Sys.time();
 		mRunSleepTime = 0.25;
+		mPingFrequency = 0.1;
+		mUpdateFrequency = 10;
 		
 		mSocket = new Socket();
 		mSocket.bind(mHost, Config.PORT);
