@@ -1,8 +1,11 @@
 package server;
 
 import common.Cell;
+import common.Config;
 import common.Messages;
 import haxe.Json;
+import sys.FileSystem;
+import sys.io.File;
 import sys.net.Host;
 import sys.net.Socket;
 
@@ -35,18 +38,21 @@ class Main
 	var mLastTime : Float;
 	
 	var mRunSleepTime : Float;
+	
+	var mPolicyServer : Thread;
 
 	static function main() {
 		new Main();
 	}
 	
 	public function new() {
-		//mHost = new Host("10.33.1.57");
 		mHost = new Host(Host.localhost());
 		Lib.println("Server launched on " + mHost);
 		
 		mUsers = new ThreadSafeList<User>();
 		mUsersToRemove = new ThreadSafeList<User>();
+		
+		mPolicyServer = Thread.create(policyServer);
 		
 		mLastID = 0;
 		mPingCounter = 0;
@@ -54,16 +60,30 @@ class Main
 		mRunSleepTime = 0.25;
 		
 		mSocket = new Socket();
-		mSocket.bind(mHost, 2084);
+		mSocket.bind(new Host(Config.HOST), Config.PORT);
 		mSocket.listen(16);
 		
 		mAccetpThread = Thread.create(clientConnectionThread);
 		run();
 	}
 	
+	function policyServer() {
+		var socket = new Socket();
+		socket.bind(new Host(Config.HOST), Config.PORT + 1);
+		socket.listen(16);
+		
+		Sys.println("Policy server created.");
+		
+		while (true) {
+			var c : Socket = socket.accept();
+			var policy = File.getContent("policy.xml") + "\r"+String.fromCharCode(0);
+			Lib.println(policy);
+			c.write(policy);
+		}
+	}
+	
 	public function clientConnectionThread() {
 		while (true) {
-			Lib.println("Waiting for peer...");
 			var c = mSocket.accept();
 			var user = new User(c, this);
 			mUsers.push(user);

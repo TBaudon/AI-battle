@@ -1,6 +1,7 @@
 package client;
 
 import common.Cell;
+import common.Config;
 import common.Messages;
 import haxe.Json;
 import openfl.display.Sprite;
@@ -10,6 +11,7 @@ import openfl.events.ProgressEvent;
 import openfl.events.MouseEvent;
 import openfl.Lib;
 import openfl.net.Socket;
+import openfl.system.Security;
 import openfl.text.TextField;
 import openfl.text.TextFieldAutoSize;
 import openfl.text.TextFormat;
@@ -40,10 +42,14 @@ class Main extends Sprite{
 	public function new () {
 		super ();
 		
+		Security.allowDomain(Config.HOST);
+		Security.loadPolicyFile(Config.HOST);
+		Security.loadPolicyFile("xmlsocket://" + Config.HOST + ":" + (Config.PORT+1));
+		
 		mBytebuffer = new ByteArray();
 		mTempByteBuff = new ByteArray();
 		
-		mServer = new Socket("radstar.fr", 2084);
+		mServer = new Socket();
 		mServer.endian = Endian.LITTLE_ENDIAN;
 		mServer.addEventListener(Event.CONNECT, onConnected);
 		mServer.addEventListener(IOErrorEvent.IO_ERROR, onError);
@@ -62,7 +68,7 @@ class Main extends Sprite{
 		mPingTxt.autoSize = TextFieldAutoSize.LEFT;
 		addChild(mPingTxt);
 		
-		mServer.connect("radstar.fr", 2084);
+		mServer.connect(Config.HOST, Config.PORT);
 		
 		addEventListener(Event.ENTER_FRAME, onEnterFrame);
 	}

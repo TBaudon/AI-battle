@@ -50,7 +50,7 @@
   <options>
     <option showHiddenPaths="False" />
     <option testMovie="Custom" />
-    <option testMovieCommand="" />
+    <option testMovieCommand="firefox http://localhost/workspace/ia%20challenge/AI-battle/Export/flash/bin/" />
   </options>
   <!-- Plugin storage -->
   <storage />
